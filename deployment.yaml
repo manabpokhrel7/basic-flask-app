@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: basic-flask-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: basic-flask-app
+  template:
+    metadata:
+      labels:
+        app: basic-flask-app
+    spec:
+      containers:
+      - name: basic-flask-app
+        image: <DOCKERHUB_USERNAME>/basic-flask-app:latest
+        ports:
+        - containerPort: 80
