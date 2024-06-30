@@ -37,7 +37,16 @@ jobs:
     - name: Update kubeconfig
       run: aws eks --region us-east-2 update-kubeconfig --name flask-cluster
 
+    - name: Print kubeconfig
+      run: cat ~/.kube/config
+
+    - name: Verify kubectl context
+      run: kubectl config current-context
+
     - name: Deploy to EKS
       run: |
         kubectl apply --validate=false -f deployment.yaml
         kubectl apply --validate=false -f service.yaml
+
+    - name: Debug kubectl
+      run: kubectl get pods --all-namespaces --v=8
