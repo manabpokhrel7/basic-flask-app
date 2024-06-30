@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: basic-flask-app
-        image: <DOCKERHUB_USERNAME>/basic-flask-app:latest
+        image: manabpokhrel/basic-flask-app:latest
         ports:
         - containerPort: 80

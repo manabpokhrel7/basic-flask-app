@@ -5,7 +5,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: my-python-app
+    app: basic-flask-app
   ports:
     - protocol: TCP
       port: 80
