@@ -1,0 +1,30 @@
+# playbook.yml
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update apt repository and install dependencies
+      apt:
+        update_cache: yes
+        name:
+          - curl
+          - git
+          - python3
+          - python3-pip
+          - docker.io
+        state: present
+
+    - name: Download GitHub Actions runner
+      shell: |
+        mkdir actions-runner && cd actions-runner
+        curl -o actions-runner-linux-x64-2.303.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-linux-x64-2.303.0.tar.gz
+        tar xzf ./actions-runner-linux-x64-2.303.0.tar.gz
+
+    - name: Configure GitHub Actions runner
+      shell: |
+        ./config.sh --url https://github.com/<your-github-user>/<your-repo> --token YOUR_GITHUB_TOKEN
+
+    - name: Start GitHub Actions runner service
+      shell: |
+        ./svc.sh install
+        ./svc.sh start
