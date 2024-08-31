@@ -27,26 +27,31 @@ jobs:
         docker buildx create --use
         docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/basic-flask-app:latest --push .
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+    # New step: Login to Azure
+    - name: Azure Login
+      uses: azure/login@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Update kubeconfig
-      run: aws eks --region us-east-2 update-kubeconfig --name flask-cluster
+    # Configure the Kubernetes cluster context for AKS
+    - name: Set up AKS context
+      run: |
+        az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
 
+    # Optional: Print the kubeconfig for debugging
     - name: Print kubeconfig
       run: cat ~/.kube/config
 
+    # Verify kubectl context to ensure AKS is configured correctly
     - name: Verify kubectl context
       run: kubectl config current-context
 
-    - name: Deploy to EKS
+    # Deploy to AKS using the deployment and service YAML files
+    - name: Deploy to AKS
       run: |
         kubectl apply --validate=false -f deployment.yaml
         kubectl apply --validate=false -f service.yaml
 
+    # Debug kubectl to check pod status and other Kubernetes resources
     - name: Debug kubectl
       run: kubectl get pods --all-namespaces --v=8
