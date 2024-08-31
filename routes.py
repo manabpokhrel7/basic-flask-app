@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 app = Flask(__name__)
-
+##manab
 # two decorators, same function
 @app.route('/')
 @app.route('/index.html')
