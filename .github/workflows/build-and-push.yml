@@ -1,4 +1,4 @@
-name: Build and Push
+name: Build and Deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,14 +27,10 @@ jobs:
         docker buildx create --use
         docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/basic-flask-app:latest --push .
 
-    # Step: Configure the Kubernetes cluster context for AKS
-    - name: Set up AKS context
+    - name: Set up kubeconfig
       run: |
-        az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --overwrite-existing
-
-    # Optional: Print the kubeconfig for debugging
-    - name: Print kubeconfig
-      run: cat ~/.kube/config
+        echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > kubeconfig
+        export KUBECONFIG=$(pwd)/kubeconfig
 
     # Verify kubectl context to ensure AKS is configured correctly
     - name: Verify kubectl context
