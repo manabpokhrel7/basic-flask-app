@@ -24,12 +24,15 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker buildx create --use
-        docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/basic-flask-app:latest --push .
+        echo "Creating Docker Buildx builder..."
+        docker buildx create --use || echo "Failed to create Docker Buildx builder"
+        echo "Building and pushing Docker image..."
+        docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/basic-flask-app:latest --push . || echo "Failed to build and push Docker image"
 
     # Step: Set up kubeconfig from secret
     - name: Set up kubeconfig
       run: |
+        echo "Setting up kubeconfig..."
         echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > kubeconfig
         export KUBECONFIG=$(pwd)/kubeconfig
         echo "Kubeconfig file set up completed."
@@ -40,28 +43,28 @@ jobs:
     - name: List available contexts
       run: |
         echo "Listing available kubectl contexts:"
-        kubectl config get-contexts || echo "Failed to list contexts"
+        kubectl config get-contexts --v=8 || echo "Failed to list contexts"
 
     # Step: Set the correct Kubernetes context
     - name: Set the correct Kubernetes context
       run: |
         echo "Attempting to set Kubernetes context to 'myAKSCluster'..."
-        kubectl config use-context myAKSCluster || echo "Failed to set context to myAKSCluster"
+        kubectl config use-context myAKSCluster --v=8 || echo "Failed to set context to myAKSCluster"
 
     # Verify the current context after setting
     - name: Verify kubectl context
       run: |
         echo "Verifying current kubectl context..."
-        kubectl config current-context || echo "Current context is not set correctly"
+        kubectl config current-context --v=8 || echo "Current context is not set correctly"
 
     # Deploy to AKS using the deployment and service YAML files
     - name: Deploy to AKS
       run: |
         echo "Applying deployment.yaml..."
-        kubectl apply --validate=false -f deployment.yaml || echo "Failed to apply deployment.yaml"
+        kubectl apply --validate=false -f deployment.yaml --v=8 || echo "Failed to apply deployment.yaml"
         echo "Applying service.yaml..."
-        kubectl apply --validate=false -f service.yaml || echo "Failed to apply service.yaml"
-##add
+        kubectl apply --validate=false -f service.yaml --v=8 || echo "Failed to apply service.yaml"
+
     # Debug kubectl to check pod status and other Kubernetes resources
     - name: Debug kubectl
       run: |
