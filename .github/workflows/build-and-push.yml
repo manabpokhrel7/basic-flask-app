@@ -61,7 +61,7 @@ jobs:
         kubectl apply --validate=false -f deployment.yaml || echo "Failed to apply deployment.yaml"
         echo "Applying service.yaml..."
         kubectl apply --validate=false -f service.yaml || echo "Failed to apply service.yaml"
-
+##add
     # Debug kubectl to check pod status and other Kubernetes resources
     - name: Debug kubectl
       run: |
