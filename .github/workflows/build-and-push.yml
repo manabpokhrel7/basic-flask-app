@@ -37,36 +37,41 @@ jobs:
         export KUBECONFIG=$(pwd)/kubeconfig
         echo "Kubeconfig file set up completed."
         ls -l $(pwd)  # Verify kubeconfig file is created
-        cat kubeconfig  # Print kubeconfig file for debugging (remove this in production)
 
-    # List available contexts to verify kubeconfig content
+    # Step 1: Verify kubeconfig content
+    - name: Verify kubeconfig content
+      run: |
+        echo "Verifying kubeconfig content..."
+        kubectl config view || echo "Failed to view kubeconfig"
+
+    # Step 2: List available contexts to verify kubeconfig content
     - name: List available contexts
       run: |
         echo "Listing available kubectl contexts:"
-        kubectl config get-contexts --v=8 || echo "Failed to list contexts"
+        kubectl config get-contexts || echo "Failed to list contexts"
 
     # Step: Set the correct Kubernetes context
     - name: Set the correct Kubernetes context
       run: |
         echo "Attempting to set Kubernetes context to 'myAKSCluster'..."
-        kubectl config use-context myAKSCluster --v=8 || echo "Failed to set context to myAKSCluster"
+        kubectl config use-context myAKSCluster || echo "Failed to set context to myAKSCluster"
 
     # Verify the current context after setting
     - name: Verify kubectl context
       run: |
         echo "Verifying current kubectl context..."
-        kubectl config current-context --v=8 || echo "Current context is not set correctly"
+        kubectl config current-context || echo "Current context is not set correctly"
 
     # Deploy to AKS using the deployment and service YAML files
     - name: Deploy to AKS
       run: |
         echo "Applying deployment.yaml..."
-        kubectl apply --validate=false -f deployment.yaml --v=8 || echo "Failed to apply deployment.yaml"
+        kubectl apply --validate=false -f deployment.yaml || echo "Failed to apply deployment.yaml"
         echo "Applying service.yaml..."
-        kubectl apply --validate=false -f service.yaml --v=8 || echo "Failed to apply service.yaml"
+        kubectl apply --validate=false -f service.yaml || echo "Failed to apply service.yaml"
 
     # Debug kubectl to check pod status and other Kubernetes resources
     - name: Debug kubectl
       run: |
         echo "Fetching pod status for all namespaces..."
-        kubectl get pods --all-namespaces --v=8 || echo "Failed to get pods status"
+        kubectl get pods --all-namespaces || echo "Failed to get pods status"
